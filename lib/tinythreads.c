@@ -174,14 +174,39 @@ void yield(void) {
  * mutex and a new thread should be dispatched from the ready queue. 
  */
 void lock(mutex *m) {
-	// To be implemented in Assignment 4!!!
+	DISABLE();
+	if (m->locked != 1)
+	{
+		m->locked = 1;
+	}
+	else
+	{
+		if (readyQ != NULL)
+		{
+		thread p = dequeue(&readyQ);
+		enqueue(current, &m->waitQ);
+		dispatch(p);	
+		}
+	}
+	ENABLE();
 }
 
 /** @brief Activate a thread in the waiting queue of the mutex if it is
  * non-empty, otherwise, the locked flag shall be reset.
  */
 void unlock(mutex *m) {
-	// To be implemented in Assignment 4!!!
+	DISABLE();
+	if (m->waitQ != NULL)
+	{
+		thread p = dequeue(&m->waitQ);
+		enqueue(current, &readyQ);
+		dispatch(p);
+	}
+	else
+	{
+		m->locked = 0;
+	}
+	ENABLE();
 }
 
 /** @brief Creates an thread block instance and assign to it an start routine, 
@@ -217,7 +242,13 @@ void respawn_periodic_tasks(void) {
 /** @brief Schedules tasks using time slicing
  */
 static void scheduler_RR(void){
-	// To be implemented in Assignment 4!!!
+	DISABLE();
+	if (readyQ != NULL){		
+		thread p = dequeue(&readyQ);
+		enqueue(current, &readyQ);
+		dispatch(p);
+	}	
+	ENABLE();
 }
 
 /** @brief Schedules periodic tasks using Rate Monotonic (RM) 
@@ -238,7 +269,7 @@ static void scheduler_EDF(void){
  * it will first call the method that re-spawns period tasks.
  */
 void scheduler(void){
-	// To be implemented in Assignment 4!!!
+	scheduler_RR();	//Round-Robin scheduler
 }
 
 /** @brief Prints via UART the content of the main variables in TinyThreads

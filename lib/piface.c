@@ -17,6 +17,7 @@ int cnt;
 volatile uint8_t cur_col = 0; 	// Column of current line
 volatile uint8_t cur_row = 0;	// Row of current line
 
+
 /* Bit-Banging SPI Driver */
 static void spi_init(void){
 	RPI_GetGpio()->GPFSEL0 |= (1 << 21);			    /* GPIO  7,  9 */
@@ -215,7 +216,7 @@ __attribute__((constructor))
 void piface_init(void){
 	spi_init();
 	mcp_init();
-	lcd_init2();
+	lcd_init();
 	cnt=0;
 }
 
@@ -300,7 +301,6 @@ void piface_clear(void) {
  */
 void piface_set_cursor(uint8_t col, uint8_t row)
 {
-    // lcd_write_cmd(0x02);
 	cur_col = col;
 	cur_row = row;
 	volatile uint8_t t = col < 39 ? col : 39;
@@ -363,8 +363,32 @@ void print_at_seg(int seg, int num) {
 	}
 
 	piface_set_cursor(col, row);
-	sprintf(str, "S%i:%i", seg, num);
+	formatstr(str, seg, num);
 	piface_puts(str);
+}
+
+void formatstr(char* str, int seg, int num)
+{
+	if (num >= 1000)
+	{
+		sprintf(str, "S%i:%i", seg, num);
+		return str;
+	}
+	if (num >= 100)
+	{
+		sprintf(str, "S%i:0%i", seg, num);
+		return str;
+	}
+	if (num >= 10)
+	{
+		sprintf(str, "S%i:00%i", seg, num);
+		return str;
+	}
+	if (num >= 1)
+	{
+		sprintf(str, "S%i:000%i", seg, num);
+		return str;
+	}
 }
 
 /** @brief Similar to print_at_seg, but displays arbitrary content on a given segment. For example:
