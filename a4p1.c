@@ -96,9 +96,9 @@ void computeSomethingForever(int seg) {
 		// exp of the 1st 9 positive integers, except 0 
 		value = iexp((i%8)+1);
     lock(&mute);
-		print_at_seg(seg % 4, value->expInt);
-		unlock(&mute);
-    // printf_at_seg(seg % 4, "S%i: %04i", seg, value->expInt);
+		//print_at_seg(seg % 4, value->expInt);
+		printf_at_seg(seg % 4, "S%i: %04i", seg, value->expInt);
+    unlock(&mute);
     }
 } 
 

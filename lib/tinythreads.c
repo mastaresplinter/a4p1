@@ -175,11 +175,11 @@ void yield(void) {
  */
 void lock(mutex *m) {
 	DISABLE();
-	if (m->locked != 1)
+	if (m->locked != 1)						//Lock the mutex if it is not currently locked.
 	{
 		m->locked = 1;
 	}
-	else
+	else									//If it was already locked, Dispatch the first element in the readyQ and put current into waitQ
 	{
 		if (readyQ != NULL)
 		{
@@ -196,17 +196,17 @@ void lock(mutex *m) {
  */
 void unlock(mutex *m) {
 	DISABLE();
-	if (m->waitQ != NULL)
+	if (m->waitQ != NULL)					//If the called Mutex has waiting threads dispatch the thread in waitQ.
 	{
 		thread p = dequeue(&m->waitQ);
 		enqueue(current, &readyQ);
 		dispatch(p);
 	}
-	else
+	else									//Else, we have no threads waiting so unlock the Mutex lock.
 	{
 		m->locked = 0;
 	}
-	ENABLE();
+	ENABLE();								
 }
 
 /** @brief Creates an thread block instance and assign to it an start routine, 
@@ -263,10 +263,8 @@ static void scheduler_EDF(void){
 	// To be implemented in Assignment 4!!!
 }
 
-/** @brief Calls the actual scheduling mechanisms, i.e., Round Robin,
- * Rate monotonic, or Earliest Deadline First.
- * When dealing with periodic tasks with fixed execution time,
- * it will first call the method that re-spawns period tasks.
+/** @brief Calls the actual scheduling mechanisms, i.e., Round Robin
+ *  @details This function is called at every timer interrupt.
  */
 void scheduler(void){
 	scheduler_RR();	//Round-Robin scheduler

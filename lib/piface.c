@@ -399,5 +399,40 @@ void formatstr(char* str, int seg, int num)
  *     void printAtSeg(int seg, const char* fmt, ...);
  */
 void printf_at_seg(int seg, const char* fmt, ...) {
-    // The implementation is optional.
+	if (seg < 0 || seg > 3)
+	{
+		fprintf(stderr, "Error: Invalid segment number.");
+		return;
+	}
+	int col, row = 0;
+	char str[8];
+	if (seg == 0)
+	{
+		col = 0;
+		row = 0;
+	}
+	else if (seg == 1)
+	{
+		col = 8;
+		row = 0;
+	}
+	else if (seg == 2)
+	{
+		col = 0;
+		row = 1;
+	}
+	else if (seg == 3)
+	{
+		col = 8;
+		row = 1;
+	}
+    va_list args;
+    va_start(args, fmt);
+    char buf[vsnprintf(NULL, 0, fmt, args) + 1];
+    va_end(args);
+    va_start(args, fmt);
+    vsnprintf(buf, sizeof buf, fmt, args);
+    va_end(args);
+	piface_set_cursor(col, row);
+	piface_puts(buf);
 }
